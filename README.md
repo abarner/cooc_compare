@@ -15,5 +15,5 @@ Here we provide code to:
 
 3. Replicate the analysis that accounts for habitat filtering in species pairwise co-occurrences, described in Appendix S2.   
 
-    **habitat_filter.md** illustrates an example implementation of several environmental-correcton methods 
+    **habitat_filter.md** illustrates an example implementation of the environmental-correction method of Blois et al. (2014) 
 
