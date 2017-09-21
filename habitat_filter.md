@@ -4,7 +4,7 @@
 
 ## Correcting pairwise co-occurrence for environmental/habitat filtering
 
-Species pairs may or may not co-occur for a variety of reasons. Although pairwise co-occurrence is often interpreted directly as a signal of pairwise species interactions, co-occurrences themselves may be a result of habitat filtering (e.g., Blois et al. 2014, Morueta-Holme et al. 2016). Several methods have been proposed to first account for the influence of environmental factors in driving species co-occurrences and then examine the remaining "significant" associations. For several methods, accounting for the environment is implemented alongside the co-occurrence method (see the R package `BayesComm` for the JSDM residual covariance method, the R Bioconductor package `ccrepe` for the correlation methods). For the remaining methods (all constraint-based methods and partial correlation), we use the framework proposed by Blois et al. 2014 (see also an implementation in Li & Waller 2016). In brief, the framework operates post-hoc on significant pairwise associations to evaluate whether negative co-occurrence is due to differences in habitat or whether positive co-occurrence is due to similarity in habitat (see Figures 1 and 2 in Blois et al. 2014 for a conceptual diagram).
+Species pairs may or may not co-occur for a variety of reasons. Although pairwise co-occurrence is often interpreted directly as a signal of pairwise species interactions, co-occurrences themselves may be a result of habitat filtering (e.g., Blois et al. 2014, Morueta-Holme et al. 2016). Several methods have been proposed to first account for the influence of environmental factors in driving species co-occurrences and then examine the remaining "significant" associations. For several methods, accounting for the environment is implemented alongside the co-occurrence method (see the R package `BayesComm` for the JSDM residual covariance method, the R Bioconductor package `ccrepe` for the correlation methods). For the remaining methods (all constraint-based methods and partial correlation), we use the framework proposed by Blois et al. (2014; see also an implementation in Li & Waller 2016). In brief, the framework operates post-hoc on significant pairwise associations to evaluate whether negative co-occurrence is due to differences in habitat or whether positive co-occurrence is due to similarity in habitat (see Figures 1 and 2 in Blois et al. 2014 for a conceptual diagram). Note that the Blois et al. (2014) also considers how dispersal could generate patterns of positive or negative co-occurrence, though this is not considered in the present study nor implemented in this example.
 
 ## Example implementation
 
@@ -65,10 +65,10 @@ num_neg <- nrow(data_pairs_neg)
 data_pairs_neg_env <- numeric()
 
 for (i in 1:num_neg){
-  both_sp<-cbind(data[,data_pairs_neg[i,"sp1_name"]],
+  both_sp <- cbind(data[,data_pairs_neg[i,"sp1_name"]],
                  data[,data_pairs_neg[i,"sp2_name"]])
-  sp1_only<-which(both_sp[,1] == 1 & both_sp[,2] == 0)
-  sp2_only<-which(both_sp[,1] == 0 & both_sp[,2] == 1)
+  sp1_only <- which(both_sp[,1] == 1 & both_sp[,2] == 0)
+  sp2_only <- which(both_sp[,1] == 0 & both_sp[,2] == 1)
   env_tmp_1 <- env[sp1_only,]
   env_tmp_2 <- env[sp2_only,]
   if (nrow(env_tmp_1) == 0 | nrow(env_tmp_2) == 0) {
@@ -80,12 +80,40 @@ for (i in 1:num_neg){
     data_pairs_neg_env[i] <- ad_tmp$aov.tab$`Pr(>F)`[1]
   }
 }
+
 # which species associations remain after removing those caused by
 # environmental conditions that are significantly different?
 data_pairs_neg[which(data_pairs_neg_env > 0.05),]
 ```
 
-Then to test among positively associated species...
+Then, for each pair of positively associated species, test whether the environment at the site of positive co-occurrence is different from the sites where both species never occur and remove those associations from subsequent analysis.
+
+
+```r
+num_pos <- nrow(data_pairs_pos)
+data_pairs_pos_env <- numeric()
+
+for (i in 1:num_pos){
+  both_sp<-cbind(data[,data_pairs_pos[i,"sp1_name"]],
+                 data[,data_pairs_pos[i,"sp2_name"]])
+  both_occ <- which(both_sp[,1] == 1 & both_sp[,2] == 1)
+  neith_occ <- which(both_sp[,1] == 0 & both_sp[,2] == 0)
+  env_tmp_1 <- env[both_occ,]
+  env_tmp_2 <- env[neith_occ,]
+  if (nrow(env_tmp_1) == 0 | nrow(env_tmp_2) == 0) {
+    data_pairs_pos_env[i] <- NA
+  } else {
+    env_tmp <- bind_rows(list(one = env_tmp_1, two = env_tmp_2), .id = "fac")
+    ad_tmp <- adonis(select(env_tmp, -fac) ~ env_tmp$fac, permutations = 99)
+    data_pairs_pos_env[i] <- ad_tmp$aov.tab$`Pr(>F)`[1]
+  }
+}
+
+# which species associations remain after removing those caused by
+# environmental conditions that are significantly different?
+data_pairs_pos[which(data_pairs_pos_env > 0.05),]
+```
+
 
 ## References
 
