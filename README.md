@@ -1,3 +1,10 @@
+
+
+
+[![DOI](https://zenodo.org/badge/103988252.svg)](https://zenodo.org/badge/latestdoi/103988252)
+
+
+
 # Supplementary code for analyses of Barner et al.
 
 Barner et al. (in review) compares the estimation of pairwise species interactions from observational co-occurrence data against species interactions estimated experimentally.
