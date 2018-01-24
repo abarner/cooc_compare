@@ -5,9 +5,9 @@
 
 
 
-# Supplementary code for analyses of Barner et al.
+# Supplementary code for analyses of Barner et al. 2018, "Fundamental contradictions among observational and experimental estimates of non-trophic species interactions"
 
-Barner et al. (in review) compares the estimation of pairwise species interactions from observational co-occurrence data against species interactions estimated experimentally.
+Barner et al. (in press, Ecology) compares the estimation of pairwise species interactions from observational spatial co-occurrence data against species interactions estimated experimentally.
 
 Here we provide code to:
 
